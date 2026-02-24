@@ -1,98 +1,145 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useCallback, useRef, useEffect, useMemo, useState } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import { useTrips } from '@/context/trips-context';
+import TimelineRow from '@/components/timeline-row';
+import { TimelineRow as TimelineRowType } from '@/types/trip';
+import {
+  ROW_HEIGHT,
+  DATE_COL_WIDTH,
+  DAYS_COL_WIDTH,
+} from '@/constants/layout';
+import { SC } from '@/constants/semantic-colors';
+import StatusBanner from '@/components/status-banner';
+import FAB from '@/components/fab';
+import EmptyTripsState from '@/components/empty-trips-state';
+import RotatedHeaderLabel from '@/components/rotated-header-label';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const getItemLayout = (_: unknown, index: number) => ({
+  length: ROW_HEIGHT,
+  offset: ROW_HEIGHT * index,
+  index,
+});
 
-export default function HomeScreen() {
+export default function TimelineScreen() {
+  const { trips, timelineRows, todayStr, isLoading } = useTrips();
+  const listRef = useRef<FlatList<TimelineRowType>>(null);
+  const [showCounts, setShowCounts] = useState(false);
+
+  const peak = useMemo(
+    () => timelineRows.reduce((max, r) => Math.max(max, r.euDaysUsed), 0),
+    [timelineRows],
+  );
+
+  // ~7px per character at fontSize 11 bold, min 40, max 120
+  const labelHeight = useMemo(
+    () => Math.max(40, Math.min(120, (Math.max(0, ...trips.map(t => t.label.length)) * 7) + 12)),
+    [trips],
+  );
+
+  useEffect(() => {
+    if (!isLoading && timelineRows.length > 0) {
+      const todayIndex = timelineRows.findIndex(r => r.dateStr === todayStr);
+      if (todayIndex >= 0) {
+        setTimeout(() => {
+          listRef.current?.scrollToIndex({ index: todayIndex, animated: false, viewPosition: 0.3 });
+        }, 100);
+      }
+    }
+  }, [isLoading, timelineRows, todayStr]);
+
+  const renderItem = useCallback(
+    ({ item }: { item: TimelineRowType }) => (
+      <TimelineRow row={item} trips={trips} showCounts={showCounts} />
+    ),
+    [trips, showCounts],
+  );
+
+  const keyExtractor = useCallback((item: TimelineRowType) => item.dateStr, []);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.centered}>
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <SafeAreaView style={styles.container}>
+      {trips.length > 0 && (
+        <StatusBanner
+          peak={peak}
+          showCounts={showCounts}
+          onToggleCounts={() => setShowCounts(v => !v)}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+      )}
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      {/* Fixed column header */}
+      <View style={styles.header}>
+        <Text style={[styles.headerCell, { width: DATE_COL_WIDTH }]}>Date</Text>
+        <Text style={[styles.headerCell, { width: DAYS_COL_WIDTH, textAlign: 'center' }]}>Days</Text>
+        <View style={styles.headerCols}>
+          {trips.map(t => (
+            <RotatedHeaderLabel key={t.id} label={t.label} colorIndex={t.colorIndex} labelHeight={labelHeight} />
+          ))}
+        </View>
+      </View>
+
+      {trips.length === 0 ? (
+        <EmptyTripsState />
+      ) : (
+        <FlatList
+          ref={listRef}
+          data={timelineRows}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          getItemLayout={getItemLayout}
+          onScrollToIndexFailed={() => {}}
+          initialNumToRender={40}
+          maxToRenderPerBatch={40}
+          windowSize={10}
+        />
+      )}
+
+      <FAB onPress={() => router.push('/modal')} accessibilityLabel="Add trip" />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+    backgroundColor: SC.bgPrimary,
+  },
+  centered: {
+    flex: 1,
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    borderBottomWidth: 1,
+    borderBottomColor: SC.border,
+    backgroundColor: SC.bgHeader,
+    paddingBottom: 4,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  headerCell: {
+    paddingLeft: 8,
+    fontSize: 12,
+    fontWeight: '600',
+    color: SC.textLabel,
+  },
+  headerCols: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
   },
 });
