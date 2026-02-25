@@ -28,8 +28,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     ...Platform.select({
-      android: {
-        elevation: 4,
+      android: { elevation: 4 },
+      web: {
+        // @ts-ignore — web-only CSS property
+        boxShadow: '0 2px 4px rgba(0,0,0,0.20)',
       },
       default: {
         shadowColor: '#000',
