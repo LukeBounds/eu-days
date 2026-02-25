@@ -1,50 +1,40 @@
-# Welcome to your Expo app 👋
+# EU Days
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile and web app for tracking time spent in the Schengen Area against the 90/180-day rolling window rule.
 
-## Get started
+## What it does
 
-1. Install dependencies
+The Schengen short-stay rule allows a maximum of 90 days in any 180-day period. EU Days lets you log trips to Schengen countries and instantly see how many days you've used, how many remain, and when days are about to drop off the rolling window.
 
-   ```bash
-   npm install
-   ```
+### Views
 
-2. Start the app
+**Timeline** — A scrollable day-by-day list showing your EU day count for each date, colour-coded by threshold (green → amber → red). Each trip is shown as a coloured column. Days inside a trip are highlighted; days in the 180-day tail show a faded/hatched pattern as they count down to dropping off.
 
-   ```bash
-   npx expo start
-   ```
+**Calendar** — A two-column mini-calendar grid covering all months spanned by your trips. Each cell shows the EU count and coloured trip indicators:
+- ▲ Upward triangle — day is inside an active trip
+- ● Faded circle — trip has ended but the day is still inside the 180-day window (tail)
+- ▼ Downward triangle — day is approaching the end of the window (dropping off)
 
-In the output, you'll find options to open the app in a
+A **#** toggle in the status bar switches the indicators to numeric contribution counts.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+**Trips** — A list of all trips. Trips that have fully expired (>180 days ago) are flagged as "Expired". Overlapping trips are flagged with a warning.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Adding trips
 
-## Get a fresh project
+Tap the **+** button on any tab to add a trip (label, start date, end date). Trips are automatically sorted by start date. Up to 15 trips can be stored. Tap a trip in the Trips tab to edit or delete it.
 
-When you're ready, run:
+## Running the app
 
 ```bash
-npm run reset-project
+npm install
+npm start          # Expo dev server
 ```
+Android testing - run device using Android Studio. Expo will auto connect on 'a' input.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Tech
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Expo](https://expo.dev) / [Expo Router](https://docs.expo.dev/router/introduction/) (file-based routing)
+- React Native 0.81 with the New Architecture enabled
+- React 19 with React Compiler
+- TypeScript
+- AsyncStorage (native) / localStorage (web) for persistence
