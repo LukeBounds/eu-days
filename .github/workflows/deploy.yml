@@ -30,8 +30,6 @@ jobs:
 
       - name: Build
         run: npx expo export --platform web
-        env:
-          EXPO_ROUTER_BASE_URL: /${{ github.event.repository.name }}
 
       - name: Add .nojekyll
         run: touch dist/.nojekyll
