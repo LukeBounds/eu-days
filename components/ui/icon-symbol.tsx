@@ -20,6 +20,9 @@ const MAPPING = {
   'chevron.right': 'chevron-right',
   'calendar': 'calendar-today',
   'airplane': 'flight',
+  'square.grid.2x2': 'grid-view',
+  'list.bullet': 'format-list-bulleted',
+  'plus': 'add',
 } as IconMapping;
 
 /**

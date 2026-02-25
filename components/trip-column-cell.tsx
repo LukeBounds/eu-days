@@ -4,11 +4,11 @@ import { ColumnState } from '@/types/trip';
 import { TRIP_COLORS } from '@/constants/trip-colors';
 import { ROW_HEIGHT, TRIP_COL_WIDTH } from '@/constants/layout';
 import HatchOverlay from '@/components/hatch-overlay';
+import { SC } from '@/constants/semantic-colors';
 
 interface Props {
   state: ColumnState;
   colorIndex: number;
-  label: string;
   showCount: boolean;
   count: number;
 }
@@ -67,10 +67,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   countTextGrey: {
-    color: '#888',
+    color: SC.textMuted,
   },
   countTextDark: {
-    color: '#333',
+    color: SC.textSecondary,
   },
 });
 

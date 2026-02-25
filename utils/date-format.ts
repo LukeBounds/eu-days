@@ -31,3 +31,9 @@ export function formatLongDate(dateStr: string): string {
 export function formatDateRange(start: string, end: string): string {
   return `${formatLongDate(start)} – ${formatLongDate(end)}`;
 }
+
+/** Days elapsed from dateStr to todayStr (positive = dateStr is in the past) */
+export function daysSince(dateStr: string, todayStr: string): number {
+  const msPerDay = 1000 * 60 * 60 * 24;
+  return Math.round((new Date(todayStr).getTime() - new Date(dateStr).getTime()) / msPerDay);
+}

@@ -1,6 +1,9 @@
 import { ColumnState, TimelineRow, Trip } from '@/types/trip';
 import { toDateStr, fromDateStr } from '@/utils/date-format';
 
+/** The Schengen rolling window length in days */
+export const WINDOW_DAYS = 180;
+
 export function addDays(dateStr: string, n: number): string {
   const date = fromDateStr(dateStr);
   date.setDate(date.getDate() + n);
@@ -12,7 +15,7 @@ export function isInRange(dateStr: string, start: string, end: string): boolean 
 }
 
 export function computeEuDays(dateStr: string, trips: Trip[]): number {
-  const windowStart = addDays(dateStr, -179);
+  const windowStart = addDays(dateStr, -(WINDOW_DAYS - 1));
   let count = 0;
   let cur = windowStart;
   while (cur <= dateStr) {
@@ -24,7 +27,7 @@ export function computeEuDays(dateStr: string, trips: Trip[]): number {
 }
 
 export function computeTripContribution(dateStr: string, trip: Trip): number {
-  const windowStart = addDays(dateStr, -179);
+  const windowStart = addDays(dateStr, -(WINDOW_DAYS - 1));
   const overlapStart = windowStart > trip.startDate ? windowStart : trip.startDate;
   const overlapEnd = dateStr < trip.endDate ? dateStr : trip.endDate;
   if (overlapStart > overlapEnd) return 0;
@@ -37,9 +40,9 @@ export function getColumnState(dateStr: string, trip: Trip): ColumnState {
   if (isInRange(dateStr, trip.startDate, trip.endDate)) {
     return { kind: 'active' };
   }
-  const tailEnd = addDays(trip.endDate, 179);
+  const tailEnd = addDays(trip.endDate, WINDOW_DAYS - 1);
   if (dateStr > trip.endDate && dateStr <= tailEnd) {
-    const droppingStart = addDays(trip.startDate, 180);
+    const droppingStart = addDays(trip.startDate, WINDOW_DAYS);
     return dateStr >= droppingStart ? { kind: 'dropping' } : { kind: 'tail' };
   }
   return { kind: 'none' };
@@ -62,7 +65,7 @@ export function computeTimelineRange(
   );
   return {
     startDate: addDays(minStart, -7),
-    endDate: addDays(maxEnd, 180),
+    endDate: addDays(maxEnd, WINDOW_DAYS),
   };
 }
 

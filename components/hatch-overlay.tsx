@@ -2,38 +2,49 @@ import React from 'react';
 import { View } from 'react-native';
 import { ROW_HEIGHT, TRIP_COL_WIDTH } from '@/constants/layout';
 
-const STRIPE_LEN = TRIP_COL_WIDTH + ROW_HEIGHT + 10;
-const STRIPE_WIDTH = 3;
-const STRIPE_SPACING = 9;
-
-const STRIPE_CX: number[] = [];
-for (let x = -ROW_HEIGHT; x <= TRIP_COL_WIDTH + ROW_HEIGHT; x += STRIPE_SPACING) {
-  STRIPE_CX.push(x);
+interface Props {
+  color: string;
+  width?: number;
+  height?: number;
+  stripeWidth?: number;
+  stripeSpacing?: number;
 }
 
-export default function HatchOverlay({ color }: { color: string }) {
+export default function HatchOverlay({
+  color,
+  width = TRIP_COL_WIDTH,
+  height = ROW_HEIGHT,
+  stripeWidth = 3,
+  stripeSpacing = 9,
+}: Props) {
+  const stripeLen = width + height + 10;
+  const stripeCX: number[] = [];
+  for (let x = -height; x <= width + height; x += stripeSpacing) {
+    stripeCX.push(x);
+  }
+
   return (
     <View
       style={{
         position: 'absolute',
         top: 0, left: 0,
-        width: TRIP_COL_WIDTH,
-        height: ROW_HEIGHT,
+        width,
+        height,
         overflow: 'hidden',
         pointerEvents: 'none',
       }}
     >
-      {STRIPE_CX.map(cx => (
+      {stripeCX.map(cx => (
         <View
           key={cx}
           style={{
             position: 'absolute',
-            width: STRIPE_WIDTH,
-            height: STRIPE_LEN,
+            width: stripeWidth,
+            height: stripeLen,
             backgroundColor: color,
             opacity: 0.45,
-            left: cx - STRIPE_WIDTH / 2,
-            top: ROW_HEIGHT / 2 - STRIPE_LEN / 2,
+            left: cx - stripeWidth / 2,
+            top: height / 2 - stripeLen / 2,
             transform: [{ rotate: '45deg' }],
           }}
         />

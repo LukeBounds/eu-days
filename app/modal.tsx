@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Text,
   TextInput,
@@ -23,6 +23,7 @@ export default function ModalScreen() {
   const isEditing = Boolean(existingTrip);
 
   const form = useTripForm(existingTrip);
+  const [pendingDelete, setPendingDelete] = useState(false);
 
   function handleSave() {
     form.setSubmitted(true);
@@ -81,10 +82,22 @@ export default function ModalScreen() {
           <Text style={styles.saveBtnText}>{isEditing ? 'Save changes' : 'Add trip'}</Text>
         </TouchableOpacity>
 
-        {isEditing && (
-          <TouchableOpacity style={styles.deleteBtn} onPress={handleDelete}>
+        {isEditing && !pendingDelete && (
+          <TouchableOpacity style={styles.deleteBtn} onPress={() => setPendingDelete(true)}>
             <Text style={styles.deleteBtnText}>Delete trip</Text>
           </TouchableOpacity>
+        )}
+
+        {isEditing && pendingDelete && (
+          <>
+            <Text style={styles.deleteConfirmLabel}>Delete &quot;{existingTrip?.label}&quot;?</Text>
+            <TouchableOpacity style={styles.deleteConfirmBtn} onPress={handleDelete}>
+              <Text style={styles.deleteConfirmBtnText}>Confirm delete</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.deleteCancelBtn} onPress={() => setPendingDelete(false)}>
+              <Text style={styles.deleteCancelBtnText}>Cancel</Text>
+            </TouchableOpacity>
+          </>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -154,6 +167,37 @@ const styles = StyleSheet.create({
   },
   deleteBtnText: {
     color: SC.destructive,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  deleteConfirmLabel: {
+    marginTop: 16,
+    fontSize: 14,
+    fontWeight: '600',
+    color: SC.destructiveDark,
+    textAlign: 'center',
+  },
+  deleteConfirmBtn: {
+    marginTop: 10,
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: 'center',
+    backgroundColor: SC.destructive,
+  },
+  deleteConfirmBtnText: {
+    color: SC.textOnAccent,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  deleteCancelBtn: {
+    marginTop: 10,
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: 'center',
+    backgroundColor: '#EEE',
+  },
+  deleteCancelBtnText: {
+    color: SC.textSecondary,
     fontSize: 16,
     fontWeight: '600',
   },

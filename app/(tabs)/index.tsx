@@ -29,14 +29,9 @@ const getItemLayout = (_: unknown, index: number) => ({
 });
 
 export default function TimelineScreen() {
-  const { trips, timelineRows, todayStr, isLoading } = useTrips();
+  const { trips, timelineRows, peak, todayStr, isLoading } = useTrips();
   const listRef = useRef<FlatList<TimelineRowType>>(null);
   const [showCounts, setShowCounts] = useState(false);
-
-  const peak = useMemo(
-    () => timelineRows.reduce((max, r) => Math.max(max, r.euDaysUsed), 0),
-    [timelineRows],
-  );
 
   // ~7px per character at fontSize 11 bold, min 40, max 120
   const labelHeight = useMemo(

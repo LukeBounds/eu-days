@@ -18,4 +18,7 @@ export const SC = {
 
   border:  '#DDD',
   divider: '#E0E0E0',
+
+  rowToday:     'rgba(10, 126, 164, 0.10)',
+  rowOverLimit: 'rgba(183, 28, 28, 0.07)',
 } as const;

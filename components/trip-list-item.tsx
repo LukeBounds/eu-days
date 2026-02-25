@@ -8,6 +8,8 @@ import { SC } from '@/constants/semantic-colors';
 interface Props {
   trip: Trip;
   isPendingDelete: boolean;
+  isExpired: boolean;
+  isOverlapping: boolean;
   onEdit: () => void;
   onDeleteRequest: () => void;
   onDeleteConfirm: () => void;
@@ -15,7 +17,7 @@ interface Props {
 }
 
 function TripListItem({
-  trip, isPendingDelete,
+  trip, isPendingDelete, isExpired, isOverlapping,
   onEdit, onDeleteRequest, onDeleteConfirm, onDeleteCancel,
 }: Props) {
   if (isPendingDelete) {
@@ -34,10 +36,24 @@ function TripListItem({
 
   return (
     <View style={styles.row}>
-      <View style={[styles.swatch, { backgroundColor: TRIP_COLORS[trip.colorIndex] }]} />
+      <View style={[styles.swatch, { backgroundColor: TRIP_COLORS[trip.colorIndex] }, isExpired && styles.swatchExpired]} />
       <View style={styles.info}>
-        <Text style={styles.label}>{trip.label}</Text>
-        <Text style={styles.dates}>{formatDateRange(trip.startDate, trip.endDate)}</Text>
+        <Text style={[styles.label, isExpired && styles.labelExpired]}>{trip.label}</Text>
+        <View style={styles.metaRow}>
+          <Text style={[styles.dates, isExpired && styles.datesExpired]}>
+            {formatDateRange(trip.startDate, trip.endDate)}
+          </Text>
+          {isExpired && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeExpiredText}>Expired</Text>
+            </View>
+          )}
+          {isOverlapping && (
+            <View style={[styles.badge, styles.badgeOverlap]}>
+              <Text style={styles.badgeOverlapText}>⚠ Overlaps</Text>
+            </View>
+          )}
+        </View>
       </View>
       <TouchableOpacity
         style={styles.editBtn}
@@ -72,6 +88,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 12,
   },
+  swatchExpired: {
+    opacity: 0.35,
+  },
   info: {
     flex: 1,
   },
@@ -80,10 +99,41 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#222',
   },
+  labelExpired: {
+    color: SC.textMuted,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 2,
+  },
   dates: {
     fontSize: 13,
     color: SC.textSecondary,
-    marginTop: 2,
+  },
+  datesExpired: {
+    color: SC.textDisabled,
+  },
+  badge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    backgroundColor: SC.bgHeader,
+  },
+  badgeExpiredText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: SC.textMuted,
+  },
+  badgeOverlap: {
+    backgroundColor: '#FFF3E0',
+  },
+  badgeOverlapText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#E65100',
   },
   editBtn: {
     paddingHorizontal: 10,

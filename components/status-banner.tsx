@@ -4,8 +4,8 @@ import { getEuDaysTheme } from '@/utils/eu-days-color';
 
 interface Props {
   peak: number;
-  showCounts: boolean;
-  onToggleCounts: () => void;
+  showCounts?: boolean;
+  onToggleCounts?: () => void;
 }
 
 export default function StatusBanner({ peak, showCounts, onToggleCounts }: Props) {
@@ -18,13 +18,15 @@ export default function StatusBanner({ peak, showCounts, onToggleCounts }: Props
   return (
     <View style={[styles.banner, { backgroundColor: bg }]}>
       <Text style={[styles.text, { flex: 1 }]}>{msg}</Text>
-      <TouchableOpacity
-        onPress={onToggleCounts}
-        style={[styles.toggle, showCounts && styles.toggleActive]}
-        accessibilityLabel="Toggle contribution counts"
-      >
-        <Text style={[styles.toggleText, showCounts && styles.toggleTextActive]}>#</Text>
-      </TouchableOpacity>
+      {onToggleCounts != null && (
+        <TouchableOpacity
+          onPress={onToggleCounts}
+          style={[styles.toggle, showCounts && styles.toggleActive]}
+          accessibilityLabel="Toggle contribution counts"
+        >
+          <Text style={[styles.toggleText, showCounts && styles.toggleTextActive]}>#</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

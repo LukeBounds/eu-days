@@ -5,6 +5,7 @@ import TripColumnCell from '@/components/trip-column-cell';
 import { ROW_HEIGHT, DATE_COL_WIDTH, DAYS_COL_WIDTH } from '@/constants/layout';
 import { formatShortDate } from '@/utils/date-format';
 import { getEuDaysTheme } from '@/utils/eu-days-color';
+import { SC } from '@/constants/semantic-colors';
 
 interface Props {
   row: TimelineRowType;
@@ -44,10 +45,10 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E0E0E0',
   },
   todayRow: {
-    backgroundColor: 'rgba(10, 126, 164, 0.10)',
+    backgroundColor: SC.rowToday,
   },
   overLimitRow: {
-    backgroundColor: 'rgba(183, 28, 28, 0.07)',
+    backgroundColor: SC.rowOverLimit,
   },
   dateText: {
     width: DATE_COL_WIDTH,

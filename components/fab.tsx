@@ -1,6 +1,7 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { SC } from '@/constants/semantic-colors';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 
 interface Props {
   onPress: () => void;
@@ -10,7 +11,7 @@ interface Props {
 export default function FAB({ onPress, accessibilityLabel = 'Add' }: Props) {
   return (
     <TouchableOpacity style={styles.fab} onPress={onPress} accessibilityLabel={accessibilityLabel}>
-      <Text style={styles.label}>+</Text>
+      <IconSymbol name="plus" size={28} color={SC.textOnAccent} />
     </TouchableOpacity>
   );
 }
@@ -26,16 +27,16 @@ const styles = StyleSheet.create({
     backgroundColor: SC.accent,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  label: {
-    color: SC.textOnAccent,
-    fontSize: 28,
-    lineHeight: 30,
-    fontWeight: '400',
+    ...Platform.select({
+      android: {
+        elevation: 4,
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 2 },
+      },
+    }),
   },
 });

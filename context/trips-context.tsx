@@ -11,7 +11,7 @@ import { buildTimelineRows } from '@/utils/date-math';
 import { loadTrips, saveTrips } from '@/utils/storage';
 import { todayDateStr } from '@/utils/date-format';
 
-const MAX_TRIPS = 8;
+const MAX_TRIPS = 15;
 
 type Action =
   | { type: 'LOAD'; trips: Trip[] }
@@ -24,16 +24,20 @@ interface State {
   isLoading: boolean;
 }
 
+function byStartDate(a: Trip, b: Trip): number {
+  return a.startDate < b.startDate ? -1 : a.startDate > b.startDate ? 1 : 0;
+}
+
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'LOAD':
       return { trips: action.trips, isLoading: false };
     case 'ADD':
-      return { ...state, trips: [...state.trips, action.trip] };
+      return { ...state, trips: [...state.trips, action.trip].sort(byStartDate) };
     case 'UPDATE':
       return {
         ...state,
-        trips: state.trips.map(t => (t.id === action.trip.id ? action.trip : t)),
+        trips: state.trips.map(t => (t.id === action.trip.id ? action.trip : t)).sort(byStartDate),
       };
     case 'DELETE':
       return { ...state, trips: state.trips.filter(t => t.id !== action.id) };
@@ -45,6 +49,7 @@ function reducer(state: State, action: Action): State {
 export interface TripsContextValue {
   trips: Trip[];
   timelineRows: TimelineRow[];
+  peak: number;
   todayStr: string;
   isLoading: boolean;
   addTrip: (trip: Omit<Trip, 'id'>) => void;
@@ -73,6 +78,11 @@ export function TripsProvider({ children }: { children: React.ReactNode }) {
     [state.trips, todayStr],
   );
 
+  const peak = useMemo(
+    () => timelineRows.reduce((max, r) => Math.max(max, r.euDaysUsed), 0),
+    [timelineRows],
+  );
+
   function addTrip(trip: Omit<Trip, 'id'>) {
     if (state.trips.length >= MAX_TRIPS) {
       Alert.alert('Limit reached', `You can only add up to ${MAX_TRIPS} trips.`);
@@ -93,6 +103,7 @@ export function TripsProvider({ children }: { children: React.ReactNode }) {
   const value: TripsContextValue = {
     trips: state.trips,
     timelineRows,
+    peak,
     todayStr,
     isLoading: state.isLoading,
     addTrip,
